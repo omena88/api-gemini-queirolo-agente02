@@ -32,7 +32,7 @@ document.addEventListener('DOMContentLoaded', () => {
             const formData = new FormData();
             formData.append('file', file);
 
-            const response = await fetch('http://localhost:8000/upload-pdf/', {
+            const response = await fetch('https://apps-api-queirolo-agente02.di8b44.easypanel.host/upload-pdf/', {
                 method: 'POST',
                 body: formData
             });
