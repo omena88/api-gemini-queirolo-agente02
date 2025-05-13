@@ -6,15 +6,14 @@ import pdfplumber
 import tempfile
 import os
 from typing import Dict
-import google.generativeai as genai
 from dotenv import load_dotenv
+import openai
 
 # Cargar variables de entorno
 load_dotenv()
 
-# Configurar Gemini
-genai.configure(api_key=os.getenv('GOOGLE_API_KEY'))
-model = genai.GenerativeModel('gemini-pro')
+# Configurar OpenAI
+openai.api_key = os.getenv('OPENAI_API_KEY')
 
 app = FastAPI()
 
@@ -36,8 +35,9 @@ async def read_root():
 
 def generate_html_summary(text: str) -> str:
     """
-    Genera un resumen en HTML usando Gemini Pro
+    Genera un resumen en HTML usando OpenAI
     """
+    print("[LOG] Enviando texto al LLM (OpenAI)...")
     prompt = f"""
     Analiza el siguiente texto de un documento de licitación y genera un resumen estructurado en HTML.
     El resumen debe ser claro y bien organizado, usando clases de Tailwind CSS para el estilo.
@@ -49,8 +49,15 @@ def generate_html_summary(text: str) -> str:
     Genera el HTML con un diseño moderno y profesional, usando colores corporativos (azul #1E40AF y gris #F3F4F6).
     """
     
-    response = model.generate_content(prompt)
-    return response.text
+    response = openai.chat.completions.create(
+        model="gpt-3.5-turbo",
+        messages=[{"role": "user", "content": prompt}],
+        max_tokens=1500,
+        temperature=0.3
+    )
+    html = response.choices[0].message.content
+    print("[LOG] Respuesta recibida del LLM (OpenAI).")
+    return html
 
 @app.post("/upload-pdf/")
 async def upload_pdf(file: UploadFile) -> Dict[str, str]:
@@ -61,27 +68,32 @@ async def upload_pdf(file: UploadFile) -> Dict[str, str]:
         raise HTTPException(status_code=400, detail="El archivo debe ser un PDF")
     
     try:
+        print("[LOG] PDF recibido: ", file.filename)
         # Crear un archivo temporal
         with tempfile.NamedTemporaryFile(delete=False, suffix='.pdf') as temp_file:
             content = await file.read()
             temp_file.write(content)
             temp_file.flush()
+            print("[LOG] PDF cargado correctamente en archivo temporal.")
             
             # Extraer texto del PDF usando pdfplumber
             text = ""
             with pdfplumber.open(temp_file.name) as pdf:
                 for page in pdf.pages:
                     text += page.extract_text() or ""
+            print("[LOG] Texto extraído del PDF. Longitud:", len(text))
             
             # Eliminar el archivo temporal
             os.unlink(temp_file.name)
             
-            # Generar resumen en HTML usando Gemini
+            # Generar resumen en HTML usando OpenAI
             html_summary = generate_html_summary(text)
+            print("[LOG] Proceso completado correctamente. Resumen generado.")
             
             return {"requirements": html_summary}
             
     except Exception as e:
+        print("[ERROR] ", str(e))
         raise HTTPException(status_code=500, detail=f"Error al procesar el PDF: {str(e)}")
 
 if __name__ == "__main__":
