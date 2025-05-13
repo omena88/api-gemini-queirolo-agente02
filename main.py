@@ -6,6 +6,15 @@ import pdfplumber
 import tempfile
 import os
 from typing import Dict
+import google.generativeai as genai
+from dotenv import load_dotenv
+
+# Cargar variables de entorno
+load_dotenv()
+
+# Configurar Gemini
+genai.configure(api_key=os.getenv('GOOGLE_API_KEY'))
+model = genai.GenerativeModel('gemini-pro')
 
 app = FastAPI()
 
@@ -25,41 +34,23 @@ app.mount("/static", StaticFiles(directory="static"), name="static")
 async def read_root():
     return FileResponse("static/index.html")
 
-def extract_documentary_requirements_from_text(pdf_text: str) -> str:
+def generate_html_summary(text: str) -> str:
     """
-    Función que simula la extracción de requisitos documentales del texto del PDF.
-    En una implementación real, esta función se conectaría a una API de LLM.
+    Genera un resumen en HTML usando Gemini Pro
     """
-    # Palabras clave comunes en documentos de licitación
-    keywords = [
-        "REQUISITOS DEL PROVEEDOR",
-        "PERFIL DEL CONSULTOR",
-        "EXPERIENCIA MÍNIMA DEL POSTOR",
-        "Acreditación:",
-        "Requisitos:",
-        "Documentación:",
-        "Experiencia:",
-        "Capacidad técnica:"
-    ]
+    prompt = f"""
+    Analiza el siguiente texto de un documento de licitación y genera un resumen estructurado en HTML.
+    El resumen debe ser claro y bien organizado, usando clases de Tailwind CSS para el estilo.
+    Incluye secciones relevantes como requisitos, experiencia necesaria, documentación requerida, etc.
     
-    requirements = []
-    lines = pdf_text.split('\n')
+    Texto del documento:
+    {text}
     
-    for i, line in enumerate(lines):
-        for keyword in keywords:
-            if keyword.lower() in line.lower():
-                # Extraer el párrafo o lista que sigue a la palabra clave
-                current_requirement = [line]
-                j = i + 1
-                while j < len(lines) and lines[j].strip() and not any(k.lower() in lines[j].lower() for k in keywords):
-                    current_requirement.append(lines[j])
-                    j += 1
-                requirements.append('\n'.join(current_requirement))
+    Genera el HTML con un diseño moderno y profesional, usando colores corporativos (azul #1E40AF y gris #F3F4F6).
+    """
     
-    if not requirements:
-        return "No se encontraron requisitos documentales en el PDF."
-    
-    return "\n\n".join(requirements)
+    response = model.generate_content(prompt)
+    return response.text
 
 @app.post("/upload-pdf/")
 async def upload_pdf(file: UploadFile) -> Dict[str, str]:
@@ -85,10 +76,10 @@ async def upload_pdf(file: UploadFile) -> Dict[str, str]:
             # Eliminar el archivo temporal
             os.unlink(temp_file.name)
             
-            # Extraer requisitos
-            requirements = extract_documentary_requirements_from_text(text)
+            # Generar resumen en HTML usando Gemini
+            html_summary = generate_html_summary(text)
             
-            return {"requirements": requirements}
+            return {"requirements": html_summary}
             
     except Exception as e:
         raise HTTPException(status_code=500, detail=f"Error al procesar el PDF: {str(e)}")

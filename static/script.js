@@ -25,7 +25,7 @@ document.addEventListener('DOMContentLoaded', () => {
         }
 
         // Mostrar indicador de carga
-        requirementsContainer.innerHTML = '<p class="placeholder">Procesando PDF...</p>';
+        requirementsContainer.innerHTML = '<div class="flex justify-center items-center h-48"><div class="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600"></div></div>';
         hideError();
 
         try {
@@ -43,16 +43,16 @@ document.addEventListener('DOMContentLoaded', () => {
 
             const data = await response.json();
             
-            // Mostrar los requisitos extraídos
+            // Mostrar el resumen HTML
             if (data.requirements) {
-                requirementsContainer.innerHTML = `<pre>${data.requirements}</pre>`;
+                requirementsContainer.innerHTML = data.requirements;
             } else {
-                requirementsContainer.innerHTML = '<p class="placeholder">No se encontraron requisitos en el PDF</p>';
+                requirementsContainer.innerHTML = '<p class="text-gray-500 text-center py-8">No se encontraron requisitos en el PDF</p>';
             }
 
         } catch (error) {
             showError(`Error al procesar el PDF: ${error.message}`);
-            requirementsContainer.innerHTML = '<p class="placeholder">Los requisitos extraídos aparecerán aquí...</p>';
+            requirementsContainer.innerHTML = '<p class="text-gray-500 text-center py-8">Los requisitos extraídos aparecerán aquí...</p>';
         }
     });
 

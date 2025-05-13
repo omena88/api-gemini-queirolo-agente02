@@ -4,30 +4,41 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Extractor de Requisitos de PDF</title>
+    <script src="https://cdn.tailwindcss.com"></script>
     <link rel="stylesheet" href="/static/styles.css">
 </head>
-<body>
-    <div class="container">
-        <h1>Extractor de Requisitos de PDF</h1>
+<body class="bg-gray-50 min-h-screen">
+    <div class="container mx-auto px-4 py-8 max-w-4xl">
+        <h1 class="text-3xl font-bold text-center text-blue-800 mb-8">Extractor de Requisitos de PDF</h1>
         
-        <div class="upload-section">
-            <form id="uploadForm">
-                <div class="file-input-container">
-                    <input type="file" id="pdfFile" accept=".pdf" required>
-                    <label for="pdfFile" class="file-label">Seleccionar PDF</label>
+        <div class="bg-white rounded-lg shadow-lg p-6 mb-8">
+            <form id="uploadForm" class="space-y-4">
+                <div class="flex flex-col items-center justify-center w-full">
+                    <label for="pdfFile" class="flex flex-col items-center justify-center w-full h-32 border-2 border-blue-300 border-dashed rounded-lg cursor-pointer bg-gray-50 hover:bg-gray-100">
+                        <div class="flex flex-col items-center justify-center pt-5 pb-6">
+                            <svg class="w-8 h-8 mb-4 text-blue-500" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 20 16">
+                                <path stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 13h3a3 3 0 0 0 0-6h-.025A5.56 5.56 0 0 0 16 6.5 5.5 5.5 0 0 0 5.207 5.021C5.137 5.017 5.071 5 5 5a4 4 0 0 0 0 8h2.167M10 15V6m0 0L8 8m2-2 2 2"/>
+                            </svg>
+                            <p class="mb-2 text-sm text-gray-500"><span class="font-semibold">Haz clic para subir</span> o arrastra y suelta</p>
+                            <p class="text-xs text-gray-500">PDF (MAX. 10MB)</p>
+                        </div>
+                        <input id="pdfFile" type="file" class="hidden" accept=".pdf" required />
+                    </label>
                 </div>
-                <button type="submit" class="submit-button">Enviar</button>
+                <button type="submit" class="w-full bg-blue-600 hover:bg-blue-700 text-white font-bold py-3 px-4 rounded-lg transition duration-200">
+                    Procesar PDF
+                </button>
             </form>
         </div>
 
-        <div class="results-section">
-            <h2>Requisitos Documentales</h2>
-            <div id="requirements" class="requirements-container">
-                <p class="placeholder">Los requisitos extraídos aparecerán aquí...</p>
+        <div class="bg-white rounded-lg shadow-lg p-6">
+            <h2 class="text-xl font-semibold text-gray-800 mb-4">Requisitos Documentales</h2>
+            <div id="requirements" class="prose max-w-none">
+                <p class="text-gray-500 text-center py-8">Los requisitos extraídos aparecerán aquí...</p>
             </div>
         </div>
 
-        <div id="error" class="error-message"></div>
+        <div id="error" class="mt-4 text-red-600 text-center hidden"></div>
     </div>
     <script src="/static/script.js"></script>
 </body>
