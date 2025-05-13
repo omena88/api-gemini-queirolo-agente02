@@ -94,8 +94,4 @@ async def upload_pdf(file: UploadFile) -> Dict[str, str]:
             
     except Exception as e:
         print("[ERROR] ", str(e))
-        raise HTTPException(status_code=500, detail=f"Error al procesar el PDF: {str(e)}")
-
-if __name__ == "__main__":
-    import uvicorn
-    uvicorn.run(app, host="0.0.0.0", port=8000) 
+        raise HTTPException(status_code=500, detail=f"Error al procesar el PDF: {str(e)}") 
