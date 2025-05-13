@@ -35,9 +35,9 @@ async def read_root():
 
 def generate_html_summary(text: str) -> str:
     """
-    Genera un resumen en HTML usando OpenAI
+    Genera un resumen en HTML usando OpenAI (modelo gpt-4o)
     """
-    print("[LOG] Enviando texto al LLM (OpenAI)...")
+    print("[LOG] Enviando texto al LLM (OpenAI gpt-4o)...")
     prompt = f"""
     Analiza el siguiente texto de un documento de licitación y genera un resumen estructurado en HTML.
     El resumen debe ser claro y bien organizado, usando clases de Tailwind CSS para el estilo.
@@ -50,13 +50,13 @@ def generate_html_summary(text: str) -> str:
     """
     
     response = openai.chat.completions.create(
-        model="gpt-3.5-turbo",
+        model="gpt-4o",
         messages=[{"role": "user", "content": prompt}],
         max_tokens=1500,
         temperature=0.3
     )
     html = response.choices[0].message.content
-    print("[LOG] Respuesta recibida del LLM (OpenAI).")
+    print("[LOG] Respuesta recibida del LLM (OpenAI gpt-4o).")
     return html
 
 @app.post("/upload-pdf/")
@@ -86,7 +86,7 @@ async def upload_pdf(file: UploadFile) -> Dict[str, str]:
             # Eliminar el archivo temporal
             os.unlink(temp_file.name)
             
-            # Generar resumen en HTML usando OpenAI
+            # Generar resumen en HTML usando OpenAI gpt-4o
             html_summary = generate_html_summary(text)
             print("[LOG] Proceso completado correctamente. Resumen generado.")
             
